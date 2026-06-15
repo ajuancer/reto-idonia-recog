@@ -1,0 +1,16 @@
+<group name="go_app,">
+    <rule id="100001" level="7">
+        <decoded_as>json</decoded_as>
+        <field name="status">^5</field>
+        <field name="level">ERROR</field>
+        <description>Go API returned an HTTP 500+ Server Error on $(path)</description>
+        <mitre>
+            <id>T1499</id> </mitre>
+    </rule>
+
+    <rule id="100002" level="5">
+        <decoded_as>json</decoded_as>
+        <field name="duration_ms">^\d{4,}</field>
+        <description>Go API experienced a slow response time on $(path)</description>
+    </rule>
+</group>

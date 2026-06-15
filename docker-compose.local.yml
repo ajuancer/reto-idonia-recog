@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  api:
+    container_name: medical-api-local
+    build:
+      context: .
+      dockerfile: deployments/local/reto-idonia-recog/Dockerfile
+    volumes:
+      - .:/app
+      - ./tmp/mylog:/tmp/mylog
+    ports:
+      - "8080:8080"   # The API port
+      - "40000:40000" # The Delve debugger port
+    env_file:
+      - .env/.local
+    # Required privileges for Delve to trace the Go process
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - seccomp:unconfined
+    # Tell Air to use our specific config file
+    command: air -c .air.toml
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "wget", "--spider", "-q", "http://localhost:8080/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 25s
+    depends_on:
+      - redis
+
+  redis:
+    image: redis:7-alpine
+    container_name: recog-idonia-redis
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:v2.55.0
+    container_name: idonia-prometheus
+    volumes:
+      - ./deployments/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "9090:9090"
+    depends_on:
+      - api
+    restart: unless-stopped
+
+  explorer:
+    container_name: medical-ledger-explorer
+    build:
+      context: .
+      dockerfile: deployments/local/explorer/Dockerfile
+    volumes:
+      - ./tmp/mylog:/tmp/mylog:ro
+    ports:
+      - "7070:8080"
+    env_file:
+      - .env/.local
+    depends_on:
+      - api

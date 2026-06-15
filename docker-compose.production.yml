@@ -1,0 +1,63 @@
+
+services:
+  reto-idonia-recog:
+    build:
+      context: .
+      dockerfile: ./deployments/production/Dockerfile
+    image: reto-idonia-recog:production
+    container_name: idonia-upload-service
+
+    ports:
+      - "8080:8080"
+
+    env_file:
+      - ./.env/.production
+
+    # Makes the entire container filesystem strictly read-only
+    read_only: true
+
+    # mount `/tmp` directly into RAM
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=400M
+
+    security_opt:
+      - no-new-privileges:true
+
+    # strip all Linux root capabilities from this container
+    cap_drop:
+      - ALL
+
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+    networks:
+      default:
+        aliases:
+          - api
+    depends_on:
+      - redis
+
+
+  redis:
+    image: redis:7-alpine
+    container_name: idonia-redis
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:v2.55.0
+
+    container_name: idonia-prometheus
+
+    volumes:
+      - ./deployments/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+
+    ports:
+      - "9090:9090"
+
+    depends_on:
+      - reto-idonia-recog
+
+networks:
+  default:
+    name: reto_idonia_recog

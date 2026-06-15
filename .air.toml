@@ -1,0 +1,22 @@
+root = "."
+tmp_dir = "tmp"
+
+[build]
+cmd = "go build -gcflags='all=-N -l' -o ./tmp/main ./cmd/api"
+
+full_bin = "dlv exec ./tmp/main --listen=0.0.0.0:40000 --headless=true --api-version=2 --accept-multiclient --continue"
+
+include_ext = ["go", "tpl", "tmpl", "html", "env", "js", "css"]
+exclude_dir = ["assets", "tmp", "vendor", "docs", "deployments", "example"]
+
+delay = 1000
+
+kill_delay = 500
+
+# For docker and delve
+poll = true
+poll_interval = 800
+send_interrupt = true
+
+[log]
+time = true

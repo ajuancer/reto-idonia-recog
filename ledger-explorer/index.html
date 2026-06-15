@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tessera Ledger Explorer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans p-8">
+<div class="max-w-5xl mx-auto">
+    <header class="mb-8 flex justify-between items-end">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900">Ledger Explorer</h1>
+            <p class="text-gray-500 mt-1">Reading local Tessera tiles from <code class="bg-gray-200 px-1 rounded">/tmp/mylog</code></p>
+        </div>
+        <div class="text-sm bg-green-100 text-green-800 px-3 py-1 rounded-full font-mono flex items-center shadow-sm">
+            <span class="mr-2">🔒</span> Chain Verified
+        </div>
+    </header>
+
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
+        <h2 class="text-xl font-semibold mb-4 border-b pb-2">Latest Checkpoint (Signed Tree Head)</h2>
+        <pre class="bg-gray-900 text-green-400 p-4 rounded overflow-x-auto text-sm font-mono">{{.Checkpoint}}</pre>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <h2 class="text-xl font-semibold mb-4 border-b pb-2">Decoded Audit Events</h2>
+
+        {{if .Logs}}
+        <div class="space-y-4">
+            {{range .Logs}}
+            <div class="border border-gray-100 rounded-md bg-gray-50 p-4">
+                <pre class="text-sm font-mono text-gray-800 overflow-x-auto">{{.}}</pre>
+            </div>
+            {{end}}
+        </div>
+        {{else}}
+        <div class="text-center py-8 text-gray-400 font-mono">
+            No JSON logs found in the binary tiles yet.
+        </div>
+        {{end}}
+    </div>
+</div>
+</body>
+</html>
